@@ -1,0 +1,47 @@
+---
+# Создание и конфигурироваание zpool
+- name: ZFS | create and configure
+  hosts: zfs
+  become: true
+
+  tasks: 
+      # --- Create zpools ---
+    #- name: ZFS | create otus1 zpool
+    #  command: zpool create otus1 mirror /dev/sdb /dev/sdc
+
+    #- name: ZFS | create otus2 zpool
+    #  command: zpool create otus2 mirror /dev/sdd /dev/sde
+
+    #- name: ZFS | create otus3 zpool
+    #  command: zpool create otus3 mirror /dev/sdf /dev/sdg
+
+    #- name: ZFS | create otus4 zpool
+    #  command: zpool create otus4 mirror /dev/sdh /dev/sdi
+    # --------------------------------------------------
+
+    # --- Add algo zfs zompressions ---
+    - name: ZFS | adds compression lzjb for otus1
+      command: zfs set compression=lzjb otus1
+
+    - name: ZFS | adds compression lz4 for otus2
+      command: zfs set compression=lz4 otus2
+
+    - name: ZFS | adds compression gzip-9 for otus3
+      command: zfs set compression=gzip-9 otus3
+
+    - name: ZFS | adds compression zle for otus4
+      command: zfs set compression=zle otus4
+    # --------------------------------------------------
+
+    # --- Download test file into the zpolls ---
+    - name: ZFS | download test file
+      get_url:
+        url: https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+        dest: "{{ item }}"
+      loop:
+      - /otus2
+      - /otus3
+      - /otus4
+    # --------------------------------------------------
+
+    
