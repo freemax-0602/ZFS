@@ -6,17 +6,17 @@
 
   tasks: 
       # --- Create zpools ---
-    #- name: ZFS | create otus1 zpool
-    #  command: zpool create otus1 mirror /dev/sdb /dev/sdc
+    - name: ZFS | create otus1 zpool
+      command: zpool create otus1 mirror /dev/sdb /dev/sdc
 
-    #- name: ZFS | create otus2 zpool
-    #  command: zpool create otus2 mirror /dev/sdd /dev/sde
+    - name: ZFS | create otus2 zpool
+      command: zpool create otus2 mirror /dev/sdd /dev/sde
 
-    #- name: ZFS | create otus3 zpool
-    #  command: zpool create otus3 mirror /dev/sdf /dev/sdg
+    - name: ZFS | create otus3 zpool
+      command: zpool create otus3 mirror /dev/sdf /dev/sdg
 
-    #- name: ZFS | create otus4 zpool
-    #  command: zpool create otus4 mirror /dev/sdh /dev/sdi
+    - name: ZFS | create otus4 zpool
+      command: zpool create otus4 mirror /dev/sdh /dev/sdi
     # --------------------------------------------------
 
     # --- Add algo zfs zompressions ---
@@ -43,5 +43,20 @@
       - /otus3
       - /otus4
     # --------------------------------------------------
+
+    # --- Gets test archive ---
+    - name: ZFS | Gets test archive
+      ansible.builtin.get_url: 
+        url: https://drive.usercontent.google.com/download?id=1MvrcEp-WgAQe57aDEzxSRalPAwbNN1Bb&export=download
+        dest: /root/archive.tar.gz
+    # --------------------------------------------------
+
+    # --- Gets archive teacher ---
+    - name: ZFS | get archive teacher
+      ansible.builtin.get_url: 
+        url: https://drive.usercontent.google.com/download?id=1wgxjih8YZ-cqLqaZVa0lA3h3Y029c3oI&export=download
+        dest: /root/otus_task2.file
+    # --------------------------------------------------
+
 
     

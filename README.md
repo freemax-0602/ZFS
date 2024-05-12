@@ -10,7 +10,7 @@
 
 ---
 **Результат выполнения задания**
-1. Поднят `Vagranfile`: 
+- Поднят `Vagranfile`: 
 
 ```
 vagrant status 
@@ -24,13 +24,16 @@ suspend the virtual machine. In either case, to restart it again,
 simply run `vagrant up`.
 ```
 
-2. Для проведения эксперимента создан скрипт ansible, позволяющий:
+- Для проведения эксперимента создан скрипт ansible, позволяющий:
     - создать 4 zpool 
     - установить алгоритм сжатия для zpool
     - скачать тестовый файл в каждый pool
+    - получает тестовый архив для экспорта
     - 
 
-3. После запуска скрипта, проверено:
+1. Определение алгоритма с наилучшем сжатием
+
+  **После запуска скрипта, проверено:**
 
 - Информация о созданных zpool
 
@@ -84,4 +87,69 @@ otus4  39.3M   313M     39.2M  /otus4
 ```
 Таким образом видно, что алгоритм **gzip-9** самый эффективный по сжатию. 
 
-- 
+2. Определение настроек пула:
+
+- Скачан и распакован архив для экспорта
+```
+[root@zfs ~]# ls
+anaconda-ks.cfg  archive.tar.gz  original-ks.cfg
+[root@zfs ~]# tar -xzvf archive.tar.gz
+zpoolexport/
+zpoolexport/filea
+zpoolexport/fileb
+```
+
+- Проверка того, можно ли импортировать данный пул в каталог:
+```
+[root@zfs ~]# zpool import -d zpoolexport/
+   pool: otus
+     id: 6554193320433390805
+  state: ONLINE
+ action: The pool can be imported using its name or numeric identifier.
+ config:
+
+	otus                         ONLINE
+	  mirror-0                   ONLINE
+	    /root/zpoolexport/filea  ONLINE
+	    /root/zpoolexport/fileb  ONLINE
+[root@zfs ~]#
+```
+
+- Импорт данного пула к в ОС:
+
+```
+[root@zfs ~]# zpool import -d zpoolexport/ otus
+[root@zfs ~]# zpool status
+  pool: otus
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME                         STATE     READ WRITE CKSUM
+	otus                         ONLINE       0     0     0
+	  mirror-0                   ONLINE       0     0     0
+	    /root/zpoolexport/filea  ONLINE       0     0     0
+	    /root/zpoolexport/fileb  ONLINE       0     0     0
+
+errors: No known data errors
+```
+
+3. Работа со снапшотом, поиск сообщения от преподавателя
+
+-  Получен тестовый файл от преподователя:
+```
+[root@zfs ~]# ls
+anaconda-ks.cfg  archive.tar.gz  original-ks.cfg  otus_task2.file  zpoolexport
+[root@zfs ~]#
+```
+
+- Восстановление файловой системы из снапшота и просмотр сообщения от преподователя
+```
+[root@zfs ~]# ls
+anaconda-ks.cfg  archive.tar.gz  original-ks.cfg  otus_task2.file  zpoolexport
+[root@zfs ~]# zfs receive otus/test@today < otus_task2.file
+[root@zfs ~]# find /otus/test -name "secret_message"
+/otus/test/task1/file_mess/secret_message
+[root@zfs ~]# cat /otus/test/task1/file_mess/secret_message
+https://otus.ru/lessons/linux-hl/
+```
